@@ -3,11 +3,7 @@
 const express = require('express');
 var router = express.Router();
 const http = require('http');
-const asn1js = require('asn1js');
 const fs = require('file-system');
-const crypto = require('crypto');
-// const hasher = crypto.createHash('sha256');
-// const ssl = 'C:/Program Files/Git/mingw64/bin/openssl.exe';
 const ssl = 'openssl.exe';
 const path = require('path');
 const exec = require('child_process').exec;
@@ -82,13 +78,10 @@ function generateReply(query, callback) {
  *  Download a file .tsq
  */
 router.get('/example', function(req, res, next) {
-    // // Create a file
-    // var file = fs.writeFileSync('file.tsr','Lorem ipsum dolor sit amet');
-
     // Creata a .tsq and send it
-    generateQuery('C:/Users/Marcos/WebstormProjects/SignuTimes/bin/descarga.pdf', function(err, result){
+    generateQuery('descarga.pdf', function(err, result){
         res.header('Content-Type' , 'application/timestamp-reply');
-        res.header('Content-Disposition', 'attachment; filename=file.tsr');
+        res.header('Content-Disposition', 'attachment; filename=descarga.tsq');
         res.download(result, 'descarga.tsq');
     } );
 
@@ -125,7 +118,7 @@ router.post('/', function(req, res, next){
         const child2 = exec(cmd, (err, stdout, stderr) => {
             if (err) return callback(err);
         });
-        generateReply('C:/Users/Marcos/WebstormProjects/SignuTimes/bin/file.tsq',function(err, reply){
+        generateReply('file.tsq',function(err, reply){
             res.header('Content-Type' , 'application/timestamp-reply');
             res.header('Content-Disposition', 'attachment; filename=file.tsr');
             res.download(reply, 'file.tsr');
