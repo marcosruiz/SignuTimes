@@ -79,7 +79,7 @@ function generateReply(query, callback) {
 
 /**
  *  GET /example
- *  Download a file
+ *  Download a file .tsq
  */
 router.get('/example', function(req, res, next) {
     // // Create a file
@@ -102,13 +102,10 @@ router.get('/example', function(req, res, next) {
 
 /**
  *  GET /
- *  Download a file
+ *  Welcome page
  */
 router.get('/', function(req, res, next) {
-    // Creata a .tsq and send it
-    generateQuery('C:/Users/Marcos/WebstormProjects/SignuTimes/bin/descarga.pdf', function(err, result){
-        res.send('Welcome to Signu TSA');
-    } );
+    res.send('Welcome to Signu TSA');
 });
 
 
@@ -128,7 +125,7 @@ router.post('/', function(req, res, next){
         const child2 = exec(cmd, (err, stdout, stderr) => {
             if (err) return callback(err);
         });
-        generateReply('C:/Users/Marcos/WebstormProjects/SignuTimes/bin/prueba2.tsq',function(err, reply){
+        generateReply('C:/Users/Marcos/WebstormProjects/SignuTimes/bin/file.tsq',function(err, reply){
             res.header('Content-Type' , 'application/timestamp-reply');
             res.header('Content-Disposition', 'attachment; filename=file.tsr');
             res.download(reply, 'file.tsr');
