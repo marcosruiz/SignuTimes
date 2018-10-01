@@ -2,7 +2,7 @@
 
 With SignuTimes is a Time Stamp Authority Service.
 
-This service uses TSP RFC3161
+This service uses [TSP RFC3161](https://www.ietf.org/rfc/rfc3161.txt)
 
 ## How to install service SignuTimes
 
@@ -58,3 +58,12 @@ Before insert the following instructions you have to be sure that the dir variab
 openssl ca -in tsacert.csr -config ./openssl.cnf > ca/newcerts/tsacert.pem
 cp ca/newcerts/tsacert.pem ca
 ~~~
+
+# SignuOCSP
+
+## What it is an OCSP
+
+Instead using a CRT (Certificate Revocation List) we are going to use a service OCSP (Online Certificate Status Protocol) to know if a certificate is valid or is revoked.
+
+This service uses RFC2560 which specification is in this [link](https://www.ietf.org/rfc/rfc2560.txt).
+
