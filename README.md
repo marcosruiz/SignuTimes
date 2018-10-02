@@ -17,11 +17,13 @@ Go to [openssl](https://www.openssl.org/) and install the last version of OpenSS
 
 ### Set the structure on point
 
-I recommend use the native command prompt of your OS to follow the following steps with Admin privileges.
+I recommend use the native command prompt of your OS to follow the following steps with Admin privileges or Git bash
 
-You must stay in SignuTimes/routes and create this directory if it does not exist
+You must stay in SignuTimes/ and create this directory if it does not exist
 
 ~~~
+mkdir openssl
+cd openssl
 mkdir ca
 cd ca
 mkdir private
@@ -29,13 +31,16 @@ mkdir newcerts
 touch index.txt
 echo 01 > serial
 echo 01 > tsaserial
+cd ..
 ~~~
+
+Copy openssl.cnf of `C:\Program Files\Git\mingw64\ssl` to openssl/ and edit this line `# extendedKeyUsage/` into this `extendedKeyUsage/` and edit dir to `./ca`.
 
 ### Generate a Private and Public Key for my CA
 
 ~~~
-openssl genrsa 4096 > ca/private/cakey.pem
-openssl req -new -x509 -days 3650 -key ca/private/cakey.pem > ca/newcerts/cacert.pem
+openssl genrsa -out ca/private/cakey.pem 4096
+openssl req -new -x509 -days 3650 -key ca/private/cakey.pem -out ca/newcerts/cacert.pem -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=SignuCA/emailAddress=signu.app@gmail.com"
 ~~~
 
 If you have this problem: unable to write 'random state'
@@ -45,17 +50,24 @@ The solution is: use terminal with admin privileges
 cp ca/newcerts/cacert.pem ca
 ~~~
 
+#### Optional: Self-signed certificate for the CA
+
+~~~
+openssl req -new -x509 -key ca.key -out ca.crt
+~~~
+
+
 ### Generate a Private and Public Key for my TSA
 
 ~~~
 openssl genrsa 4096 > ca/private/tsakey.pem
-openssl req -new -key ca/private/tsakey.pem > tsacert.csr
+openssl req -new -key ca/private/tsakey.pem -out tsacert.csr -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=SignuTSA/emailAddress=signu.app@gmail.com"
 ~~~
 
 Before insert the following instructions you have to be sure that the dir variable of openssl.cnf file is correct
 
 ~~~
-openssl ca -in tsacert.csr -config ./openssl.cnf > ca/newcerts/tsacert.pem
+openssl ca -in tsacert.csr -config openssl.cnf -out ca/newcerts/tsacert.pem
 cp ca/newcerts/tsacert.pem ca
 ~~~
 
@@ -66,4 +78,13 @@ cp ca/newcerts/tsacert.pem ca
 Instead using a CRT (Certificate Revocation List) we are going to use a service OCSP (Online Certificate Status Protocol) to know if a certificate is valid or is revoked.
 
 This service uses RFC2560 which specification is in this [link](https://www.ietf.org/rfc/rfc2560.txt).
+
+
+# Update .gitignore
+
+~~~
+git rm -r --cached .
+git add .
+git commit -m "fixed untracked files"
+~~~
 

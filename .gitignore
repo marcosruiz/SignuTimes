@@ -57,3 +57,6 @@ typings/
 # dotenv environment variables file
 .env
 
+# Private keys
+
+openssl/ca/private/*
