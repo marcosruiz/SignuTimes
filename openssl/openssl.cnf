@@ -205,7 +205,7 @@ authorityKeyIdentifier=keyid,issuer
 # Copy subject details
 # issuerAltName=issuer:copy
 
-nsCaRevocationUrl		= http://192.168.1.6/crl
+#nsCaRevocationUrl		= http://192.168.1.6/crl
 #nsBaseUrl
 #nsRevocationUrl
 #nsRenewalUrl

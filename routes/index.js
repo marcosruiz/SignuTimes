@@ -28,7 +28,8 @@ router.post('/ocsp', postOCSP);
 router.get('/ca.crl', getCRL);
 
 function getCRL(req, res){
-    res.code(HttpStatus.OK).download(crl, 'ca.crl');
+    res.status(200);
+    res.download(crl, 'ca.crl');
 }
 
 var serviceCallback = function (response) {

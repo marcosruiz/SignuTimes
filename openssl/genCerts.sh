@@ -30,5 +30,5 @@ cp ca/newcerts/personalcert.pem ca
 cd ca
 echo 01 > crlnumber
 cd ..
-openssl ca -config openssl.cnf -gencrl -out ca/crl/ca.crl
-openssl crl -in ca/crl/ca.crl -noout -text
+openssl ca -config openssl.cnf -gencrl -out ca/crl/ca.crl.pem
+openssl crl -inform PEM -in ca/crl/ca.crl.pem -outform DER -out ca/crl/ca.crl
