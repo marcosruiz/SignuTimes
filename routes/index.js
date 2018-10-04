@@ -25,12 +25,10 @@ router.get('/ocsp', function (req, res) {
 });
 router.post('/ocsp', postOCSP);
 
-router.get('/crl', getCRL);
+router.get('/ca.crl', getCRL);
 
 function getCRL(req, res){
-    console.log("getCRL");
-    //console.log(req.headers);
-    res.download(crl, 'ca.crl');
+    res.code(HttpStatus.OK).download(crl, 'ca.crl');
 }
 
 var serviceCallback = function (response) {
