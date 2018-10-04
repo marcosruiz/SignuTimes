@@ -1,5 +1,3 @@
-'use strict';
-
 const express = require('express');
 var router = express.Router();
 const http = require('http');
@@ -9,11 +7,31 @@ const path = require('path');
 const exec = require('child_process').exec;
 var HttpStatus = require('http-status-codes');
 
-const key = path.resolve(__dirname, 'ca/private/tsakey.pem');
-const cert = path.resolve(__dirname, 'ca/tsacert.pem');
-const ca = path.resolve(__dirname, 'ca/cacert.pem');
-const config = path.resolve(__dirname, 'openssl.cnf');
+const key = path.resolve(__dirname, '../openssl/ca/private/tsakey.pem');
+const cert = path.resolve(__dirname, '../openssl/ca/tsacert.pem');
+const ca = path.resolve(__dirname, '../openssl/ca/cacert.pem');
+const config = path.resolve(__dirname, '../openssl/openssl.cnf');
+const crl = path.resolve(__dirname, '../openssl/ca/crl/ca.crl');
 
+router.get('/', function (req, res) {
+    res.send('Welcome to Signu TSA');
+});
+router.post('/tsr', postTSR);
+
+router.get('/example', getExample);
+
+router.get('/ocsp', function (req, res) {
+    res.send("Welcome to GET OCSP");
+});
+router.post('/ocsp', postOCSP);
+
+router.get('/crl', getCRL);
+
+function getCRL(req, res){
+    console.log("getCRL");
+    //console.log(req.headers);
+    res.download(crl, 'ca.crl');
+}
 
 var serviceCallback = function (response) {
     return function (err, obj) {
@@ -31,7 +49,7 @@ var serviceCallback = function (response) {
  * @param logfile
  * @param callback
  */
-function generateQuery(logfile, callback) {
+function generateTSQuery(logfile, callback) {
     const dirname = path.dirname(logfile);
     const basename = path.basename(logfile, path.extname(logfile));
     const query = path.resolve(dirname, `${basename}.tsq`);
@@ -61,7 +79,7 @@ function generateTSReply(query, callback) {
     const basename = path.basename(query, path.extname(query));
     const reply = path.resolve(dirname, `${basename}.tsr`);
 
-    const cmd = `${ssl} ts -config ${config} -reply -queryfile ${query} -inkey ${key} -signer ${cert} > ${reply}`;
+    const cmd = `${ssl} ts -config ${config} -reply -queryfile ${query} -inkey ${key} -signer ${cert} -out ${reply}`;
     const child = exec(cmd, (err, stdout, stderr) => {
         if (err) return callback(err);
 
@@ -78,39 +96,23 @@ function generateTSReply(query, callback) {
  *  GET /example
  *  Download a file .tsq
  */
-router.get('/example', function (req, res) {
+function getExample(req, res) {
     // Creata a .tsq and send it
-    generateQuery('descarga.pdf', function (err, result) {
+    generateTSQuery('descarga.pdf', function (err, result) {
         res.header('Content-Type', 'application/timestamp-reply');
         res.header('Content-Disposition', 'attachment; filename=descarga.tsq');
         res.download(result, 'descarga.tsq');
     });
-
-    // Checking descarga.tsq
-    // const cmd = `${ssl} ts -query -in descarga2.tsq -text`;
-    // const child2 = exec(cmd, (err, stdout, stderr) => {
-    //     if (err) return callback(err);
-    //     res.send('hola');
-    // })
-});
+}
 
 /**
- *  GET /
- *  Welcome page
- */
-router.get('/', function (req, res) {
-    res.send('Welcome to Signu TSA');
-});
-
-
-/**
- * POST
+ * POST TSR
  * Pre: receives a request using Time-Stamp Protocol (RFC3161)
  * Post: response with a binary file
  */
-router.post('/tsr', function (req, res) {
+function postTSR(req, res) {
     // Check header
-    if(req.header('content-type') != 'application/timestamp-query'){
+    if (req.header('content-type') != 'application/timestamp-query') {
         res.status(HttpStatus.BAD_REQUEST).send("Bad Request");
     } else {
         req.on('data', function (data) {
@@ -123,23 +125,22 @@ router.post('/tsr', function (req, res) {
             });
             generateTSReply('file.tsq', function (err, reply) {
                 res.header('Content-Type', 'application/timestamp-reply');
-                res.header('Content-Disposition', 'attachment; filename=file.tsr');
-                res.download(reply, 'file.tsr');
+                if (err) {
+                    res.status(500).send("Internal error");
+                } else {
+                    res.header('Content-Disposition', 'attachment; filename=file.tsr');
+                    res.download(reply, 'file.tsr');
+                }
             });
         });
     }
-
-
-});
-router.get('/ocsp', function(req, res){
-    res.send("welcome to GET OCSP");
-});
+}
 
 /**
  * check this with: openssl ocsp
  */
-router.post('/ocsp', function (req, res) {
-    if(req.header('content-type') != 'application/ocsp-request'){
+function postOCSP(req, res) {
+    if (req.header('content-type') != 'application/ocsp-request') {
         res.status(HttpStatus.BAD_REQUEST).send("Bad Request");
     } else {
         req.on('data', function (data) {
@@ -152,24 +153,6 @@ router.post('/ocsp', function (req, res) {
             res.status(200).send("BLA");
         });
     }
-});
-
-function generateOcspReply(query, callback) {
-    const dirname = path.dirname(query);
-    const basename = path.basename(query, path.extname(query));
-    const reply = path.resolve(dirname, `${basename}.tsr`);
-
-    const cmd = `${ssl} ocsp -reply -queryfile ${query} -inkey ${key} -signer ${cert} > ${reply}`;
-    const child = exec(cmd, (err, stdout, stderr) => {
-        if (err) return callback(err);
-
-        const cmd = `${ssl} ts -reply -in ${reply} -text`;
-        const child2 = exec(cmd, (err, stdout, stderr) => {
-            if (err) return callback(err);
-            // console.log(stdout);
-            callback(null, reply);
-        });
-    })
 }
 
 module.exports = router;

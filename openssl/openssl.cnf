@@ -161,6 +161,7 @@ challengePassword_max		= 20
 unstructuredName		= An optional company name
 
 [ usr_cert ]
+# authorityInfoAccess = OCSP;URI:http://localhost:8888
 
 # These extensions are added when 'ca' signs a request.
 
@@ -213,6 +214,11 @@ authorityKeyIdentifier=keyid,issuer
 
 # This is required for TSA certificates.
 extendedKeyUsage = critical,timeStamping
+
+# [v3_ocsp]
+# basicConstraints = CA:FALSE
+# keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+# extendedKeyUsage = OCSPSigning
 
 [ v3_req ]
 

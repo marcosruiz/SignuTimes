@@ -40,7 +40,7 @@ Copy openssl.cnf of `C:\Program Files\Git\mingw64\ssl` to openssl/ and edit this
 
 ~~~
 openssl genrsa -out ca/private/cakey.pem 4096
-openssl req -new -x509 -days 3650 -key ca/private/cakey.pem -out ca/newcerts/cacert.pem -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=SignuCA/emailAddress=signu.app@gmail.com"
+openssl req -new -x509 -days 3650 -key ca/private/cakey.pem -out ca/newcerts/cacert.pem -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=Signu/emailAddress=signu.app@gmail.com"
 ~~~
 
 If you have this problem: unable to write 'random state'
@@ -50,18 +50,11 @@ The solution is: use terminal with admin privileges
 cp ca/newcerts/cacert.pem ca
 ~~~
 
-#### Optional: Self-signed certificate for the CA
-
-~~~
-openssl req -new -x509 -key ca.key -out ca.crt
-~~~
-
-
 ### Generate a Private and Public Key for my TSA
 
 ~~~
 openssl genrsa 4096 > ca/private/tsakey.pem
-openssl req -new -key ca/private/tsakey.pem -out tsacert.csr -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=SignuTSA/emailAddress=signu.app@gmail.com"
+openssl req -new -key ca/private/tsakey.pem -out tsacert.csr -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=Signu/emailAddress=signu.app@gmail.com"
 ~~~
 
 Before insert the following instructions you have to be sure that the dir variable of openssl.cnf file is correct
@@ -76,9 +69,18 @@ cp ca/newcerts/tsacert.pem ca
 ## What it is an OCSP
 
 Instead using a CRT (Certificate Revocation List) we are going to use a service OCSP (Online Certificate Status Protocol) to know if a certificate is valid or is revoked.
+Because its more effective, with OCSP we can check only one certificate without download all CRT.
 
 This service uses RFC2560 which specification is in this [link](https://www.ietf.org/rfc/rfc2560.txt).
 
+~~~
+openssl req -config ./openssl.cnf -new -nodes -out ca.csr -keyout ca.key -extensions v3_ocsp -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=Signu/emailAddress=signu.app@gmail.com"
+openssl ca -config ./openssl.cnf -in tsacert.csr -out ca.crt -extensions v3_ocsp
+openssl req -config ./openssl.cnf  -new -nodes -out dummy.csr -keyout dummy.key -subj "/C=ES/ST=Zaragoza/L=Zaragoza/O=Signu/OU=Signu/CN=Signu/emailAddress=signu.app@gmail.com"
+openssl ca -config ./openssl.cnf -in dummy.csr -out dummy.crt
+openssl ocsp -index index.txt -port 8888 -CA cacert.pem -rsigner ca.crt -rkey ca.key -text -out log.txt
+openssl ocsp -index /etc/pki/CA/index.txt -port 8888 -rsigner ca.isrlabs.net.crt -rkey ca.isrlabs.net.key -CA /etc/pki/CA/cacert.pem -text -out log.txt
+~~~
 
 # Update .gitignore
 
@@ -88,3 +90,18 @@ git add .
 git commit -m "fixed untracked files"
 ~~~
 
+# Certificate Revocation List (CRL)
+
+First we create some things:
+~~~
+cd ca
+echo 01 > crlnumber
+mkdir crl
+cd ..
+~~~
+
+With this we create a CRL and check it:
+~~~
+openssl ca -config openssl.cnf -gencrl -out ca/crl/ca.crl
+openssl crl -in ca/crl/ca.crl -noout -text
+~~~

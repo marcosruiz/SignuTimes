@@ -1,1 +1,2 @@
-V	191002150828Z		01	unknown	/C=ES/ST=Zaragoza/O=Signu/OU=Signu/CN=SignuTSA/emailAddress=signu.app@gmail.com
+V	191004120323Z		01	unknown	/C=ES/ST=Zaragoza/O=Signu/OU=Signu/CN=SignuTSA/emailAddress=signu.app@gmail.com
+V	191004120329Z		02	unknown	/C=ES/ST=Zaragoza/O=Signu/OU=Signu/CN=SignuPersonal/emailAddress=sobrenombre@gmail.com
