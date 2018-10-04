@@ -34,7 +34,17 @@ echo 01 > tsaserial
 cd ..
 ~~~
 
+### Warning
+
 Copy openssl.cnf of `C:\Program Files\Git\mingw64\ssl` to openssl/ and edit this line `# extendedKeyUsage/` into this `extendedKeyUsage/` and edit dir to `./ca`.
+Edit [tsa_config1]:
+
+- In `dir` put TSA absolute root directory
+- In `digest` put sha256 and every digest that you use
+
+Edit [ca_config]:
+
+- In `dir` put CA absolute root directory
 
 ### Generate a Private and Public Key for my CA
 

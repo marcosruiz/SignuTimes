@@ -7,9 +7,9 @@ const path = require('path');
 const exec = require('child_process').exec;
 var HttpStatus = require('http-status-codes');
 
-const key = path.resolve(__dirname, '../openssl/ca/private/tsakey.pem');
-const cert = path.resolve(__dirname, '../openssl/ca/tsacert.pem');
-const ca = path.resolve(__dirname, '../openssl/ca/cacert.pem');
+const tsakey = path.resolve(__dirname, '../openssl/ca/private/tsakey.pem');
+const tsacert = path.resolve(__dirname, '../openssl/ca/tsacert.pem');
+const cacert = path.resolve(__dirname, '../openssl/ca/cacert.pem');
 const config = path.resolve(__dirname, '../openssl/openssl.cnf');
 const crl = path.resolve(__dirname, '../openssl/ca/crl/ca.crl');
 
@@ -79,7 +79,7 @@ function generateTSReply(query, callback) {
     const basename = path.basename(query, path.extname(query));
     const reply = path.resolve(dirname, `${basename}.tsr`);
 
-    const cmd = `${ssl} ts -config ${config} -reply -queryfile ${query} -inkey ${key} -signer ${cert} -out ${reply}`;
+    const cmd = `${ssl} ts -config ${config} -reply -queryfile ${query} -inkey ${tsakey} -signer ${tsacert} > ${reply}`;
     const child = exec(cmd, (err, stdout, stderr) => {
         if (err) return callback(err);
 
@@ -110,7 +110,7 @@ function getExample(req, res) {
  * Pre: receives a request using Time-Stamp Protocol (RFC3161)
  * Post: response with a binary file
  */
-function postTSR(req, res) {
+function postTSR(req, res, next) {
     // Check header
     if (req.header('content-type') != 'application/timestamp-query') {
         res.status(HttpStatus.BAD_REQUEST).send("Bad Request");
@@ -121,7 +121,7 @@ function postTSR(req, res) {
         req.on('end', function () {
             const cmd = `${ssl} ts -query -in file.tsq -text`;
             const child2 = exec(cmd, (err, stdout, stderr) => {
-                if (err) return callback(err);
+                if (err) return next(err);
             });
             generateTSReply('file.tsq', function (err, reply) {
                 res.header('Content-Type', 'application/timestamp-reply');
