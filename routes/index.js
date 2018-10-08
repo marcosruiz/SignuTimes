@@ -10,13 +10,17 @@ var HttpStatus = require('http-status-codes');
 const tsakey = path.resolve(__dirname, '../openssl/ca/private/tsakey.pem');
 const tsacert = path.resolve(__dirname, '../openssl/ca/tsacert.pem');
 const cacert = path.resolve(__dirname, '../openssl/ca/cacert.pem');
+const cakey = path.resolve(__dirname, '../openssl/ca/private/cakey.pem');
 const config = path.resolve(__dirname, '../openssl/openssl.cnf');
 const crl = path.resolve(__dirname, '../openssl/ca/crl/ca.crl');
+const crlPem = path.resolve(__dirname, '../openssl/ca/crl/ca.crl.pem');
 
 router.get('/', function (req, res) {
     res.send('Welcome to Signu TSA');
 });
 router.post('/tsr', postTSR);
+
+router.post('/cert', processCSR);
 
 router.get('/example', getExample);
 
@@ -27,9 +31,80 @@ router.post('/ocsp', postOCSP);
 
 router.get('/ca.crl', getCRL);
 
-function getCRL(req, res){
-    res.status(200);
-    res.download(crl, 'ca.crl');
+router.get('/revoke', revokeCert);
+
+
+function processCSR(req, res, next) {
+    req.on('data', function (data) {
+        fs.writeFileSync('file.csr', data);
+    });
+    req.on('end', function () {
+        generateCSRReply('file.csr', function(err, reply){
+            if (err) {
+                res.status(500).send("Internal error");
+            } else {
+                res.header('Content-Disposition', 'attachment; filename=file.pem');
+                res.download(reply, 'file.pem');
+            }
+        });
+    });
+}
+
+function generateCSRReply(query, callback) {
+    const dirname = path.dirname(query);
+    const basename = path.basename(query, path.extname(query));
+    const reply = path.resolve(dirname, `${basename}.pem`);
+    const queryRoute = path.resolve(dirname, `${basename}.csr`);
+    // openssl ca -in personalcert.csr -config openssl.cnf -out ca/newcerts/personalcert.pem
+    const cmd = `${ssl} ca -batch -in ${queryRoute} -config ${config} -out ${reply}`;
+    const child = exec(cmd, (err, stdout, stderr) => {
+        if (err) {
+            callback(err);
+        } else {
+            console.log(stdout);
+            callback(null, reply);
+        }
+    });
+}
+
+
+/**
+ * Not tested
+ * @param req
+ * @param res
+ * @param next
+ */
+function revokeCert(req, res, next) {
+    // Get cert
+    req.on('data', function (data) {
+        fs.writeFileSync('certToRevoke.pem', data);
+    });
+    req.on('end', function () {
+        // Revoke certificate
+        // openssl ca -config openssl.cnf -revoke ca/personalcert.pem -keyfile ca/private/cakey.pem -cert ca/cacert.pem
+        var cmd = `${ssl} ca -config ${config} -revoke certToRevoke.pem -keyfile ${cakey} -cert ${cacert}`;
+        const child = exec(cmd, (err, stdout, stderr) => {
+            if (err) return next(err);
+            res.status(HttpStatus.OK).send();
+        });
+    });
+}
+
+function getCRL(req, res, next) {
+    // Update CRL
+    // openssl ca -config openssl.cnf -gencrl -out ca/crl/ca.crl.pem
+    // openssl crl -inform PEM -in ca/crl/ca.crl.pem -outform DER -out ca/crl/ca.crl
+    var cmd = `${ssl} ca -config ${config} -gencrl -out ${crlPem}`;
+    const child = exec(cmd, (err, stdout, stderr) => {
+        if (err) return next(err);
+        cmd = `${ssl} crl -inform PEM -in ${crlPem} -outform DER -out ${crl}`;
+        const child2 = exec(cmd, (err, stdout, stderr) => {
+            if (err) return next(err);
+            // Send CRL
+            res.status(200);
+            res.download(crl, 'ca.crl');
+        });
+    });
 }
 
 var serviceCallback = function (response) {
@@ -65,7 +140,6 @@ function generateTSQuery(logfile, callback) {
             callback(null, query);
         })
     })
-
 }
 
 /**
