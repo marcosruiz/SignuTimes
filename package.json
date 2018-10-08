@@ -5,8 +5,15 @@
   "scripts": {
     "start": "node ./bin/www"
   },
+  "config": {
+    "blanket": {
+      "pattern": [ "" ],
+      "data-cover-never": [ "node_modules", "test", "openssl", "public", "views" ]
+    }
+  },
   "dependencies": {
     "asn1js": "^2.0.21",
+    "blanket": "^1.2.3",
     "body-parser": "~1.17.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
