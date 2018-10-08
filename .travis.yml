@@ -11,7 +11,7 @@ install:
   - npm install -g istanbul
   - npm install -g codecov
 script:
-  - istanbul cover ./node_modules/mocha/bin/_mocha -- -R spec && codecov
+  - istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && codecov
 env:
   global:
     - secure: Wy0DWez3yd/2vMOHwV03WDWMAw6Z3Gp5ZQgwZpw7cBJjT0sx+Mdd9b9OkPu4edRQ4f4L1yLMJs1ydsvkz006s8z7BzLgN5f7+npkytywU3r1lz+5bnNgyAcyMEsPpmwogUuijJRv1oeH8P1N5sxEe7uMTl3ttRYspgedT8d1/Dc40K42vcx+HTrWDpTBOhEvv3WeRE0N1FbDkEMyw4XKp0AY1PyphtkZ2E0cu1q8ThRT+Rl894mgcyblnUJs9DVAEf6NCK/zS96zglKl6RxMWHwRN5apSW/9R5dfKX+ILdw44clTnS1Ix3CcpCPte2+6okoaBviGnCIhYAlEBIHk2R0Zzem0jSJ3XTEf9VOWehV8uUVG8ibKmqBN2AkR8sYly8sLSJPlPWKgIDhCwCfMmvDqJc7LjdXRYaKLaJNdLLJbhDUjMY9AF8gEhlAElEesrTR44w5kKTvCmQIJtYXTbAPC7sgHPG6g3f+chyFKUAOSwkIV6w8mQsfYhjnh/H5nrXLK5WX5dtm97P9aRZ2MhM7ntsIHs70eU+HWlr6txoItI5wR1FJGY3q5L1oWM1onJ3FKovHLucOqA6yAAiRJhmvQwsc/tQqcYxQv2Lx8YGN42+wLHiSH9JSpULsSim89G2qJmoOrF4abwdBSCNwG4NuIH36q+r7dYOx82un3BOc=
