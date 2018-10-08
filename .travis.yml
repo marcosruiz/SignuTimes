@@ -3,7 +3,9 @@ sudo: enabled
 node_js:
 - 8.10.0
 before_install:
-  - openssl aes-256-cbc -K $encrypted_34e714915dc9_key -iv $encrypted_34e714915dc9_iv -in openssl/ca/private/cakey.pem.enc -out openssl/ca/private/cakey.pem -d
+- mkdir openssl/ca/private
+- openssl aes-256-cbc -K $encrypted_34e714915dc9_key -iv $encrypted_34e714915dc9_iv
+  -in cakey.pem.enc -out openssl/ca/private/cakey.pem -d
 install:
-  - npm install mocha
-  - npm install -g istanbul
+- npm install mocha
+- npm install -g istanbul
