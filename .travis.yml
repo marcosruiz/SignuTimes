@@ -7,6 +7,7 @@ before_install:
   -d
 install:
   - npm install mocha
+  - npm install mocha-lcov-reporter
   - npm install -g istanbul
   - npm install -g blanket
   - npm install -g codecov
