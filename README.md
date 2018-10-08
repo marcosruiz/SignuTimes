@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.com/marcosruiz/SignuTimes.svg?branch=master)](https://travis-ci.com/marcosruiz/SignuTimes)
 
+[![codecov](https://codecov.io/gh/marcosruiz/SignuTimes/branch/master/graph/badge.svg)](https://codecov.io/gh/marcosruiz/SignuTimes)
+
 With SignuTimes is a Time Stamp Authority Service.
 
 This service uses [TSP RFC3161](https://www.ietf.org/rfc/rfc3161.txt)
