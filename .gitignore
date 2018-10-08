@@ -59,5 +59,9 @@ typings/
 
 # OpenSSL
 
-openssl/ca/private/*
+personal*
+*key.pem
+*.p12
 .rnd
+
+# Private Key
