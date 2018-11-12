@@ -4,7 +4,6 @@ node_js:
 before_install:
 - mkdir openssl/ca/private
 - openssl aes-256-cbc -k "$super_secret_password" -in tsakey.pem.enc -out openssl/ca/private/tsakey.pem
-  -d
 install:
   - npm install mocha
   - npm install mocha-lcov-reporter

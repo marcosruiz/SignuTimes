@@ -10,10 +10,10 @@ var HttpStatus = require('http-status-codes');
 const tsakey = path.resolve(__dirname, '../openssl/ca/private/tsakey.pem');
 const tsacert = path.resolve(__dirname, '../openssl/ca/tsacert.pem');
 const cacert = path.resolve(__dirname, '../openssl/ca/cacert.pem');
-const cakey = path.resolve(__dirname, '../openssl/ca/private/cakey.pem');
+// const cakey = path.resolve(__dirname, '../openssl/ca/private/cakey.pem');
 const config = path.resolve(__dirname, '../openssl/openssl.cnf');
-const crl = path.resolve(__dirname, '../openssl/ca/crl/ca.crl');
-const crlPem = path.resolve(__dirname, '../openssl/ca/crl/ca.crl.pem');
+// const crl = path.resolve(__dirname, '../openssl/ca/crl/ca.crl');
+// const crlPem = path.resolve(__dirname, '../openssl/ca/crl/ca.crl.pem');
 
 router.get('/', function (req, res) {
     res.send('Welcome to Signu TSA');
@@ -32,7 +32,6 @@ router.post('/ocsp', postOCSP);
 router.get('/ca.crl', getCRL);
 
 router.get('/revoke', revokeCert);
-
 
 function processCSR(req, res, next) {
     req.on('data', function (data) {
