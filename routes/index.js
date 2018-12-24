@@ -87,8 +87,8 @@ function generateTSReply(query, callback) {
     const dirname = path.dirname(query);
     const basename = path.basename(query, path.extname(query));
     const reply = path.resolve(dirname, `${basename}.tsr`);
-
-    const cmd = `${ssl} ts -config ${config} -reply -queryfile ${query} -inkey ${tsakey} -signer ${tsacert} > ${reply}`;
+    const queryfile = path.resolve(dirname, `${basename}.tsq`);
+    const cmd = `${ssl} ts -config ${config} -reply -queryfile ${queryfile} -inkey ${tsakey} -signer ${tsacert} > ${reply}`;
     const child = exec(cmd, (err, stdout, stderr) => {
         if (err) return callback(err);
 
